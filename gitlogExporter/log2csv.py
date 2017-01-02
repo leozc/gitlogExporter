@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import argparse
 import os
 import subprocess
@@ -23,8 +25,6 @@ def main(args):
     except:
         sys.exit("no such branch")
     return repo
-
-
 
 from collections import defaultdict
 
@@ -59,9 +59,9 @@ def genTuples(repo, branch, limit, since):
              )
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Tag current branch with ticket ID')
-    parser.add_argument('-b', '--branch', action='store', dest="branch", help='specify the branch')
-    parser.add_argument('-r', '--root', action='store', dest="gitroot", help='specify the gitroot')
+    parser = argparse.ArgumentParser(description='Export git log into csv.')
+    parser.add_argument('-b', '--branch', action='store', dest="branch", help='specify the branch', required=True)
+    parser.add_argument('-r', '--root', action='store', dest="gitroot",  help='specify the gitroot', required=True)
     parser.add_argument('-l', '--limit', action='store', dest="limit", type=int, help='specify the maxium items want to take')
     parser.add_argument('-s', '--since', action='store', dest="since", help='specify a date YYYY-MM-DD , e.g. 2014-1-1')
 
