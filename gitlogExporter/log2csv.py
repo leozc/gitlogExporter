@@ -1,11 +1,14 @@
 #!/usr/bin/env python
-
+from __future__ import print_function
 import argparse
 
 import time
 import csv
 from logExporter import *
 import datetime as DT
+
+def eprint(*args, **kwargs):
+    print(*args, file=sys.stderr, **kwargs)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Export git log into csv.')
@@ -30,7 +33,20 @@ if __name__ == '__main__':
     csvWriter = csv.writer(sys.stdout, quoting=csv.QUOTE_NONNUMERIC)
     for x in genTuples(repo, args.branch, limit, since):
         ## normal
-        dt = DT.datetime.utcfromtimestamp(x["authored_date"])
-        iso_format = dt.isoformat() + 'Z'
-        row = (x["sha"],iso_format, x["author_email"], x["author_name"], x["lines"], x["insertions"], x["deletions"],)
-        csvWriter.writerow (row)
+        #dt = DT.datetime.utcfromtimestamp(x.authored_date)
+        #iso_format = dt.isoformat() + 'Z'
+
+        author_time = time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime(x.authored_date))
+        # dt_c = DT.datetime.utcfromtimestamp(x.committed_date)
+        # iso_format_c = dt.isoformat() + 'Z'
+
+        commit_time = time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime(x.committed_date))
+
+        row = (x.sha, author_time, x.author_name, x.author_email, commit_time, x.committer_name, x.committer_email, x.lines, x.insertions, x.deletions, x.file_count)
+        try:
+            csvWriter.writerow (row)
+        except Exception as e:
+            eprint(">>>>>>>>>>>>>>")
+            eprint(row)
+            eprint(e)
+            eprint("<<<<<<<<<<<<<<")

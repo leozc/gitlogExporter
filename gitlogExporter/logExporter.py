@@ -26,12 +26,37 @@ def sumByExt(m):
     d = defaultdict(dict)
     for k in m.keys():
         stat = m[k]
-        fname, ext = os.path.splitext(k)
+        fname, ext = os.path.splitext(os.path.basename(k))
+        if len(ext)==0:
+            ext = fname
         x = stat
         y = d[ext]
         v = { k: x.get(k, 0) + y.get(k, 0) for k in set(x) | set(y) }
+
+        if not "file_count" in v:
+            v["file_count"]=1
+        else:
+            v["file_count"] = v["file_count"] + 1
+
+
         d[ext] = v
     return d
+
+class CommitObject:
+    def __init__(self, sha, authored_date, author_name, author_email, committed_date, committer_name, committer_email, lines, insertions, deletions, file_count, extStat, raw_files):
+        self.sha = sha
+        self.authored_date =authored_date
+        self.author_name =author_name
+        self.author_email =author_email
+        self.committed_date =committed_date
+        self.committer_name =committer_name
+        self.committer_email =committer_email
+        self.lines =lines
+        self.insertions =insertions
+        self.deletions =deletions
+        self.file_count =file_count
+        self.extStat =extStat
+        self.raw_files =raw_files
 
 def genTuples(repo, branch, limit, since):
     for i in repo.iter_commits(branch):
@@ -44,16 +69,19 @@ def genTuples(repo, branch, limit, since):
       limit = limit - 1
 
       extStat = sumByExt(i.stats.files)
-      yield {"sha": str(i.hexsha),
+      file_count = len(i.stats.files)
 
-             "authored_date": i.authored_date,
-             "author_name": i.author.name,
-             "author_email": i.author.email,
-             "committed_date": i.committed_date,
-             "committer_name": i.committer.name,
-             "committer_email": i.committer.email,
-             "lines": i.stats.total["lines"],
-             "insertions": i.stats.total["insertions"],
-             "deletions": i.stats.total["deletions"],
-             "extStat": extStat
-             }
+      yield CommitObject(str(i.hexsha),
+                i.authored_date,
+                i.author.name.encode('utf-8'),
+                i.author.email.encode('utf-8'),
+                i.committed_date,
+                i.committer.name.encode('utf-8'),
+                i.committer.email.encode('utf-8'),
+                i.stats.total["lines"],
+                i.stats.total["insertions"],
+                i.stats.total["deletions"],
+                file_count,
+                extStat,
+                i.stats.files
+            )
