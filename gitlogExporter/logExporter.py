@@ -45,8 +45,13 @@ def genTuples(repo, branch, limit, since):
 
       extStat = sumByExt(i.stats.files)
       yield {"sha": str(i.hexsha),
-             "authored_date": time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(i.authored_date)),
-             "authored_name": i.author.name,
+
+             "authored_date": i.authored_date,
+             "author_name": i.author.name,
+             "author_email": i.author.email,
+             "committed_date": i.committed_date,
+             "committer_name": i.committer.name,
+             "committer_email": i.committer.email,
              "lines": i.stats.total["lines"],
              "insertions": i.stats.total["insertions"],
              "deletions": i.stats.total["deletions"],

@@ -5,6 +5,7 @@ import argparse
 import time
 import csv
 from logExporter import *
+import datetime as DT
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Export git log into csv.')
@@ -28,5 +29,8 @@ if __name__ == '__main__':
 
     csvWriter = csv.writer(sys.stdout, quoting=csv.QUOTE_NONNUMERIC)
     for x in genTuples(repo, args.branch, limit, since):
-        row = (x["sha"],x["authored_date"],x["authored_name"],x["lines"],x["insertions"], x["deletions"],)
+        ## normal
+        dt = DT.datetime.utcfromtimestamp(x["authored_date"])
+        iso_format = dt.isoformat() + 'Z'
+        row = (x["sha"],iso_format, x["author_email"], x["author_name"], x["lines"], x["insertions"], x["deletions"],)
         csvWriter.writerow (row)
